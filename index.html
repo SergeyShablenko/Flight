@@ -10,9 +10,17 @@
     <script src="./classes/Bullet.js"></script>
     <script src="./classes/Weapon.js"></script>
     <script src="./classes/Plane.js"></script>
+    <script src="./classes/Map.js"></script>
     <script src="./classes/Game.js"></script>
 </head>
 <body>
+<div class="container" data-game>
     <canvas id="game"></canvas>
+</div>
 </body>
+<script>
+    $(document).ready(function () {
+        var game = new Game($('[data-game]')[0], {});
+    });
+</script>
 </html>
