@@ -1,21 +1,23 @@
-var AbstractPlane = function (ctx, name, width, height, acceleration, rotationSpeed) {
+var AbstractPlane = function (ctx, name, width, height, acceleration, rotationSpeed, slowingSpeed) {
     this.ctx = ctx;
     this.name = name;
     this.hp = 100;
     this.width = width;
     this.height = height;
     this.acceleration = acceleration;
-    this.rotationMaxSpeed = rotationSpeed;
-    this.rotationAcceleration = rotationSpeed;
+    this.rotationSpeed = rotationSpeed;
+    this.slowingSpeed = slowingSpeed;
 
-    this.currentRotationAcceleration = 0;
     this.currentAcceleration = 0;
     this.currentSpeed = 0;
-    this.movementDirection = 0;
-    this.fireDirection = 0;
+    this.movementDirection = 0.5;
+    this.fireDirection = 0.5;
     this.weapon = [];
-    this.x = 0;
-    this.y = 0;
+    this.x = 50;
+    this.y = 50;
+
+    this.speedX = 0;
+    this.speedY = 0;
 };
 
 AbstractPlane.prototype.update = function (dt) {
@@ -24,8 +26,10 @@ AbstractPlane.prototype.update = function (dt) {
     }
 
     this.movementDirection = (this.movementDirection + this.fireDirection) / 2;
-    this.x += this.currentSpeed * dt * Math.cos(this.movementDirection);
-    this.y += this.currentSpeed * dt * Math.sin(this.movementDirection);
+    this.speedX = this.currentSpeed * dt * Math.cos(this.movementDirection);
+    this.speedY = this.currentSpeed * dt * Math.sin(this.movementDirection);
+    this.x += this.speedX;
+    this.y += this.speedY;
 };
 
 AbstractPlane.prototype.draw = function () {
@@ -42,10 +46,18 @@ AbstractPlane.prototype.draw = function () {
 };
 
 AbstractPlane.prototype.rotate = function (deg) {
-    this.fireDirection += deg * 0.0174532925;
+    this.fireDirection += deg * 0.0174532925 * this.rotationSpeed;
 };
 
 AbstractPlane.prototype.accelerate = function () {
     this.currentAcceleration += this.acceleration;
     this.currentSpeed += this.currentAcceleration;
+};
+
+AbstractPlane.prototype.slowDown = function () {
+    if (this.currentSpeed - this.slowingSpeed < 0) {
+        this.currentSpeed = 0;
+    } else {
+        this.currentSpeed -= this.slowingSpeed;
+    }
 };

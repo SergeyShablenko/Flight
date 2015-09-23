@@ -6,7 +6,7 @@ var Game = function (element, options) {
     this.map = null;
     this.started = false;
     this.t = Date.now();
-    this.fpsts = 1000 / this.options.fps;
+    this.fpsts = 1 / this.options.fps;
 
     /** Variable which contains games main timer */
     this.proc = null;
@@ -32,7 +32,7 @@ Game.prototype.init = function () {
         screenWidth: this.options.screenWidth,
         screenHeight: this.options.screenHeight
     });
-    this.plane = new Plane(ctx, 'player 1', 75, 25, 0.01, 30);
+    this.plane = new Plane(ctx, 'player 1', 26, 6, 1, 3, 5);
 
     this.initPlayerControls();
 };
@@ -51,7 +51,7 @@ Game.prototype.gameProc = function () {
     this.map.draw();
     this.plane.draw();
 
-    var dt = Date.now() - this.t;
+    var dt = (Date.now() - this.t) / 1000;
     this.t = Date.now();
 
     if (dt > this.fpsts) {
@@ -60,6 +60,7 @@ Game.prototype.gameProc = function () {
 
     this.map.update(dt);
     this.plane.update(dt);
+    this.map.follow(this.plane.x, this.plane.y, -this.plane.speedX, -this.plane.speedY);
 };
 
 Game.prototype.initPlayerControls = function () {
@@ -67,6 +68,9 @@ Game.prototype.initPlayerControls = function () {
     $(document).on('keydown', function (e) {
         if (-1 !== $.inArray(e.which, [87, 38])) {
             self.plane.accelerate();
+        }
+        if (-1 !== $.inArray(e.which, [83, 40])) {
+            self.plane.slowDown();
         }
         if (-1 !== $.inArray(e.which, [65, 37])) {
             self.plane.rotate(-1);

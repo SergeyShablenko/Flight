@@ -26,7 +26,7 @@ Map.prototype.draw = function () {
         ctx = this.ctx;
 
     ctx.fillStyle = '#F0F0F0';
-    ctx.fillRect(0, 0, this.options.screenWidth, this.options.screenHeight);
+    ctx.fillRect(0, 0, this.options.mapWidth, this.options.mapHeight);
     ctx.strokeStyle = '#303030';
     ctx.lineWidth = 1;
     for (var i=0; i<rows; i++) {
@@ -70,7 +70,7 @@ Map.prototype.translate = function (dx, dy) {
         offset.x = - this.offset.x - (this.options.mapWidth - this.options.screenWidth);
     }
     if(this.offset.y + dy > 0) {
-        offset.y = y - (this.offset.y + dy);
+        offset.y = dy - (this.offset.y + dy);
     }
     if(Math.abs(this.offset.y + dy) + this.options.screenHeight > this.options.mapHeight) {
         offset.y = -this.offset.y - (this.options.mapHeight - this.options.screenHeight);
@@ -80,4 +80,13 @@ Map.prototype.translate = function (dx, dy) {
     this.offset.y += offset.y;
 
     this.ctx.translate(offset.x, offset.y);
+};
+
+Map.prototype.follow = function (x, y, dx, dy) {
+    var offset = {
+        x: dx,
+        y: dy
+    };
+
+    this.translate(offset.x, offset.y);
 };
