@@ -12,7 +12,7 @@ Map.prototype.DEFAULT_OPTIONS = {
     screenHeight: 768,
     mapWidth: 5000,
     mapHeight: 5000,
-    gridSize: 50,
+    gridSize: 100,
     translationSteps: 10
 };
 
@@ -25,9 +25,10 @@ Map.prototype.draw = function () {
         cols = this.grid[0].length,
         ctx = this.ctx;
 
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = '#F0F0F0';
     ctx.fillRect(0, 0, this.options.screenWidth, this.options.screenHeight);
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = '#303030';
+    ctx.lineWidth = 1;
     for (var i=0; i<rows; i++) {
         for (var j=0; j<cols; j++) {
             ctx.strokeRect(this.grid[i][j].x, this.grid[i][j].y, this.grid[i][j].size, this.grid[i][j].size);

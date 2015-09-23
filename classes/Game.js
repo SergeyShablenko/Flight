@@ -18,7 +18,7 @@ var Game = function (element, options) {
 Game.prototype.DEFAULT_OPTIONS = {
     screenWidth: 1024,
     screenHeight: 768,
-    fps: 40
+    fps: 60
 };
 
 Game.prototype.init = function () {
@@ -32,6 +32,9 @@ Game.prototype.init = function () {
         screenWidth: this.options.screenWidth,
         screenHeight: this.options.screenHeight
     });
+    this.plane = new Plane(ctx, 'player 1', 75, 25, 0.01, 30);
+
+    this.initPlayerControls();
 };
 
 Game.prototype.start = function () {
@@ -46,6 +49,7 @@ Game.prototype.stop = function () {
 
 Game.prototype.gameProc = function () {
     this.map.draw();
+    this.plane.draw();
 
     var dt = Date.now() - this.t;
     this.t = Date.now();
@@ -55,4 +59,20 @@ Game.prototype.gameProc = function () {
     }
 
     this.map.update(dt);
+    this.plane.update(dt);
+};
+
+Game.prototype.initPlayerControls = function () {
+    var self = this;
+    $(document).on('keydown', function (e) {
+        if (-1 !== $.inArray(e.which, [87, 38])) {
+            self.plane.accelerate();
+        }
+        if (-1 !== $.inArray(e.which, [65, 37])) {
+            self.plane.rotate(-1);
+        }
+        if (-1 !== $.inArray(e.which, [68, 39])) {
+            self.plane.rotate(1);
+        }
+    });
 };
