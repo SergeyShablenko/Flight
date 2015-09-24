@@ -6,7 +6,6 @@ var Game = function (element, options) {
     this.map = null;
     this.started = false;
     this.t = Date.now();
-    this.fpsts = 1 / this.options.fps;
 
     /** Variable which contains games main timer */
     this.proc = null;
@@ -36,8 +35,13 @@ Game.prototype.init = function () {
         screenHeight: this.options.screenHeight
     });
     this.plane = new Plane(ctx, 'player 1', 26, 6, 1, 3, 5);
-    this.anotherPlane = new Plane(ctx, 'player 2', 30, 15, 1, 3, 5);
-    this.anotherPlane.currentSpeed = 5;
+
+    /** test **/
+    this.anotherPlanes = [];
+    for (var i=0; i<20; i++) {
+        this.anotherPlanes.push(new Plane(ctx, 'player 2', 30, 15, 1, 3, 5));
+        this.anotherPlanes[i].currentSpeed = Math.random() * 200;
+    }
     this.initPlayerControls();
 };
 
@@ -52,22 +56,26 @@ Game.prototype.stop = function () {
 };
 
 Game.prototype.gameProc = function () {
+    this.map.follow(this.plane.x, this.plane.y);
     this.map.draw();
     this.plane.draw();
-    this.anotherPlane.draw();
+    /** test **/
+    for (var i=0; i<this.anotherPlanes.length; i++) {
+        this.anotherPlanes[i].draw();
+    }
 
     var dt = (Date.now() - this.t) / 1000;
     this.t = Date.now();
 
-    if (dt > this.fpsts) {
-        dt = this.fpsts;
-    }
-
     this.map.update(dt);
     this.plane.update(dt);
-    this.anotherPlane.rotate(1);
-    this.anotherPlane.update(dt);
+    /** test **/
+    for (var i=0; i<this.anotherPlanes.length; i++) {
+        this.anotherPlanes[i].update(dt);
+        this.anotherPlanes[i].rotate(1);
+    }
     this.map.follow(this.plane.x, this.plane.y);
+    this.map.putObject(this.plane);
 };
 
 Game.prototype.initPlayerControls = function () {

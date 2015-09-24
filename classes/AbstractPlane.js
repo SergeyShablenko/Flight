@@ -13,8 +13,8 @@ var AbstractPlane = function (ctx, name, width, height, acceleration, rotationSp
     this.movementDirection = 0.5;
     this.fireDirection = 0.5;
     this.weapon = [];
-    this.x = 50;
-    this.y = 50;
+    this.x = Math.random() * 4000;
+    this.y = Math.random() * 4000;
 
     this.speedX = 0;
     this.speedY = 0;

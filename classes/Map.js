@@ -92,3 +92,17 @@ Map.prototype.follow = function (x, y) {
 
     this.translate(-dx, -dy);
 };
+
+Map.prototype.putObject = function (object) {
+    var boxes = [],
+        staticX = object.width * Math.cos(object.movementDirection) / 2,
+        staticY = object.height * Math.sin(object.movementDirection) / 2;
+
+    boxes.pushIfNotExit(Math.abs((object.x + staticX) / this.options.gridSize));
+    boxes.pushIfNotExit(Math.abs((object.x - staticX) / this.options.gridSize));
+    boxes.pushIfNotExit(Math.abs((object.y + staticY) / this.options.gridSize));
+    boxes.pushIfNotExit(Math.abs((object.y - staticY) / this.options.gridSize));
+
+    console.log(boxes);
+};
+
