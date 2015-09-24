@@ -4,6 +4,8 @@ var Map = function (ctx, options) {
 
     this.grid = [];
     this.offset = {x: 0, y: 0};
+    this.cpf = parseInt(this.options.screenWidth / this.options.gridSize);
+    this.rpf = parseInt(this.options.screenHeight / this.options.gridSize);
     this.init();
 };
 
@@ -21,22 +23,24 @@ Map.prototype.init = function () {
 };
 
 Map.prototype.draw = function () {
-    var rows = this.grid.length,
-        cols = this.grid[0].length,
+    var startRow = parseInt(-this.offset.x / this.options.gridSize),
+        startCol = parseInt(-this.offset.y / this.options.gridSize),
+        stopRow = startRow + this.cpf + 2,
+        stopCol = startCol + this.rpf + 2,
         ctx = this.ctx;
 
     ctx.fillStyle = '#F0F0F0';
     ctx.fillRect(0, 0, this.options.mapWidth, this.options.mapHeight);
-    ctx.strokeStyle = '#303030';
+    ctx.strokeStyle = '#989898';
     ctx.lineWidth = 1;
-    for (var i=0; i<rows; i++) {
-        for (var j=0; j<cols; j++) {
+    for (var i=startRow; i<stopRow && i<this.grid.length; i++) {
+        for (var j=startCol; j<stopCol && j<this.grid[0].length; j++) {
             ctx.strokeRect(this.grid[i][j].x, this.grid[i][j].y, this.grid[i][j].size, this.grid[i][j].size);
         }
     }
 };
 
-Map.prototype.update = function (dt) {
+Map.prototype.update = function () {
 
 };
 
@@ -82,11 +86,9 @@ Map.prototype.translate = function (dx, dy) {
     this.ctx.translate(offset.x, offset.y);
 };
 
-Map.prototype.follow = function (x, y, dx, dy) {
-    var offset = {
-        x: dx,
-        y: dy
-    };
+Map.prototype.follow = function (x, y) {
+    var dx = x + this.offset.x - this.options.screenWidth / 2,
+        dy = y + this.offset.y - this.options.screenHeight / 2;
 
-    this.translate(offset.x, offset.y);
+    this.translate(-dx, -dy);
 };

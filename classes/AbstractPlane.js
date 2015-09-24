@@ -18,9 +18,11 @@ var AbstractPlane = function (ctx, name, width, height, acceleration, rotationSp
 
     this.speedX = 0;
     this.speedY = 0;
+    this.wasDrawn = false;
 };
 
 AbstractPlane.prototype.update = function (dt) {
+    this.wasDrawn = false;
     if (this.currentSpeed === 0) {
         return;
     }
@@ -33,6 +35,10 @@ AbstractPlane.prototype.update = function (dt) {
 };
 
 AbstractPlane.prototype.draw = function () {
+    if (this.wasDrawn) {
+        return;
+    }
+
     var halfX = this.width / 2,
         halfY = this.height / 2,
         ctx = this.ctx;
@@ -41,8 +47,10 @@ AbstractPlane.prototype.draw = function () {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.fireDirection);
     ctx.fillStyle = 'green';
-    ctx.fillRect(-halfX, halfY, this.width, this.height);
+    ctx.fillRect(-halfX, -halfY, this.width, this.height);
     ctx.restore();
+
+    this.wasDrawn = true;
 };
 
 AbstractPlane.prototype.rotate = function (deg) {
@@ -55,9 +63,7 @@ AbstractPlane.prototype.accelerate = function () {
 };
 
 AbstractPlane.prototype.slowDown = function () {
-    if (this.currentSpeed - this.slowingSpeed < 0) {
-        this.currentSpeed = 0;
-    } else {
-        this.currentSpeed -= this.slowingSpeed;
-    }
+    this.currentSpeed /= 2;
+    this.movementDirection -= 3.14159265;
+    this.fireDirection -= 3.14159265;
 };

@@ -25,6 +25,9 @@ Game.prototype.init = function () {
     var canvas = this.$element.find('canvas')[0],
         ctx = canvas.getContext('2d');
 
+    this.options.screenHeight = window.innerHeight;
+    this.options.screenWidth = window.innerWidth;
+
     canvas.width = this.options.screenWidth;
     canvas.height = this.options.screenHeight;
 
@@ -33,7 +36,8 @@ Game.prototype.init = function () {
         screenHeight: this.options.screenHeight
     });
     this.plane = new Plane(ctx, 'player 1', 26, 6, 1, 3, 5);
-
+    this.anotherPlane = new Plane(ctx, 'player 2', 30, 15, 1, 3, 5);
+    this.anotherPlane.currentSpeed = 5;
     this.initPlayerControls();
 };
 
@@ -50,6 +54,7 @@ Game.prototype.stop = function () {
 Game.prototype.gameProc = function () {
     this.map.draw();
     this.plane.draw();
+    this.anotherPlane.draw();
 
     var dt = (Date.now() - this.t) / 1000;
     this.t = Date.now();
@@ -60,7 +65,9 @@ Game.prototype.gameProc = function () {
 
     this.map.update(dt);
     this.plane.update(dt);
-    this.map.follow(this.plane.x, this.plane.y, -this.plane.speedX, -this.plane.speedY);
+    this.anotherPlane.rotate(1);
+    this.anotherPlane.update(dt);
+    this.map.follow(this.plane.x, this.plane.y);
 };
 
 Game.prototype.initPlayerControls = function () {
