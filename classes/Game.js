@@ -6,6 +6,8 @@ var Game = function (element, options) {
     this.map = null;
     this.started = false;
     this.t = Date.now();
+    this.playerId = null;
+    this.planes = {};
 
     /** Variable which contains games main timer */
     this.proc = null;
@@ -22,7 +24,8 @@ Game.prototype.DEFAULT_OPTIONS = {
 
 Game.prototype.init = function () {
     var canvas = this.$element.find('canvas')[0],
-        ctx = canvas.getContext('2d');
+        ctx = canvas.getContext('2d'),
+        tmp = null;
 
     this.options.screenHeight = window.innerHeight;
     this.options.screenWidth = window.innerWidth;
@@ -34,14 +37,23 @@ Game.prototype.init = function () {
         screenWidth: this.options.screenWidth,
         screenHeight: this.options.screenHeight
     });
-    this.plane = new Plane(ctx, 'player 1', 26, 6, 1, 3, 5);
+
+    tmp = new Plane(ctx, 'player 1', 26, 6, 1, 3, 5);
+    tmp.index = 0;
+    this.planes[tmp.index] = $.extend(true, {}, tmp);
+    this.playerId = tmp.index;
+    delete(tmp);
 
     /** test **/
-    this.anotherPlanes = [];
-    for (var i=0; i<20; i++) {
-        this.anotherPlanes.push(new Plane(ctx, 'player 2', 30, 15, 1, 3, 5));
-        this.anotherPlanes[i].currentSpeed = Math.random() * 200;
+
+    for (var i=1; i<=20; i++) {
+        tmp = new Plane(ctx, 'player ' + i, 30, 15, 1, 3, 5);
+        tmp.currentSpeed = Math.random() * 200;
+        tmp.index = i;
+        this.planes[tmp.index] = $.extend(true, {}, tmp);
+        delete(tmp);
     }
+
     this.initPlayerControls();
 };
 
@@ -56,42 +68,41 @@ Game.prototype.stop = function () {
 };
 
 Game.prototype.gameProc = function () {
-    this.map.follow(this.plane.x, this.plane.y);
+    this.map.follow(this.planes[this.playerId].x, this.planes[this.playerId].y);
+
+    var interval = this.map.getDrawingInterval();
+
     this.map.draw();
-    this.plane.draw();
-    /** test **/
-    for (var i=0; i<this.anotherPlanes.length; i++) {
-        this.anotherPlanes[i].draw();
-    }
+    $.each(this.planes, function () {
+        if (this.x < interval.x || this.x > interval.x1 || this.y < interval.y || this.y > interval.y1) {
+            return;
+        }
+
+        this.draw();
+    });
 
     var dt = (Date.now() - this.t) / 1000;
     this.t = Date.now();
 
-    this.map.update(dt);
-    this.plane.update(dt);
-    /** test **/
-    for (var i=0; i<this.anotherPlanes.length; i++) {
-        this.anotherPlanes[i].update(dt);
-        this.anotherPlanes[i].rotate(1);
-    }
-    this.map.follow(this.plane.x, this.plane.y);
-    this.map.putObject(this.plane);
+    $.each(this.planes, function () {
+        this.update(dt);
+    });
 };
 
 Game.prototype.initPlayerControls = function () {
     var self = this;
     $(document).on('keydown', function (e) {
         if (-1 !== $.inArray(e.which, [87, 38])) {
-            self.plane.accelerate();
+            self.planes[self.playerId].accelerate();
         }
         if (-1 !== $.inArray(e.which, [83, 40])) {
-            self.plane.slowDown();
+            self.planes[self.playerId].slowDown();
         }
         if (-1 !== $.inArray(e.which, [65, 37])) {
-            self.plane.rotate(-1);
+            self.planes[self.playerId].rotate(-1);
         }
         if (-1 !== $.inArray(e.which, [68, 39])) {
-            self.plane.rotate(1);
+            self.planes[self.playerId].rotate(1);
         }
     });
 };

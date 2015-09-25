@@ -4,8 +4,8 @@ var Map = function (ctx, options) {
 
     this.grid = [];
     this.offset = {x: 0, y: 0};
-    this.cpf = parseInt(this.options.screenWidth / this.options.gridSize);
-    this.rpf = parseInt(this.options.screenHeight / this.options.gridSize);
+    this.rpf = parseInt(this.options.screenWidth / this.options.gridSize);
+    this.cpf = parseInt(this.options.screenHeight / this.options.gridSize);
     this.init();
 };
 
@@ -25,14 +25,15 @@ Map.prototype.init = function () {
 Map.prototype.draw = function () {
     var startRow = parseInt(-this.offset.x / this.options.gridSize),
         startCol = parseInt(-this.offset.y / this.options.gridSize),
-        stopRow = startRow + this.cpf + 2,
-        stopCol = startCol + this.rpf + 2,
+        stopRow = startRow + this.rpf + 2,
+        stopCol = startCol + this.cpf + 2,
         ctx = this.ctx;
 
     ctx.fillStyle = '#F0F0F0';
     ctx.fillRect(0, 0, this.options.mapWidth, this.options.mapHeight);
     ctx.strokeStyle = '#989898';
     ctx.lineWidth = 1;
+
     for (var i=startRow; i<stopRow && i<this.grid.length; i++) {
         for (var j=startCol; j<stopCol && j<this.grid[0].length; j++) {
             ctx.strokeRect(this.grid[i][j].x, this.grid[i][j].y, this.grid[i][j].size, this.grid[i][j].size);
@@ -55,7 +56,7 @@ Map.prototype.createGrid = function () {
                 x: i * this.options.gridSize,
                 y: j * this.options.gridSize,
                 size: this.options.gridSize,
-                objects: []
+                objects: {}
             });
         }
     }
@@ -93,16 +94,12 @@ Map.prototype.follow = function (x, y) {
     this.translate(-dx, -dy);
 };
 
-Map.prototype.putObject = function (object) {
-    var boxes = [],
-        staticX = object.width * Math.cos(object.movementDirection) / 2,
-        staticY = object.height * Math.sin(object.movementDirection) / 2;
-
-    boxes.pushIfNotExit(Math.abs((object.x + staticX) / this.options.gridSize));
-    boxes.pushIfNotExit(Math.abs((object.x - staticX) / this.options.gridSize));
-    boxes.pushIfNotExit(Math.abs((object.y + staticY) / this.options.gridSize));
-    boxes.pushIfNotExit(Math.abs((object.y - staticY) / this.options.gridSize));
-
-    console.log(boxes);
+Map.prototype.getDrawingInterval = function () {
+    return {
+        x: Math.abs(this.offset.x),
+        y: Math.abs(this.offset.y),
+        x1: Math.abs(this.offset.x) + (this.rpf + 2) * this.options.gridSize,
+        y1: Math.abs(this.offset.y) + (this.cpf + 2) * this.options.gridSize
+    };
 };
 
