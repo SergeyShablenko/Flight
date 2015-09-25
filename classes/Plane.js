@@ -1,4 +1,4 @@
-var Plane = function (name, width, height, maxAcceleration, acceleration, rotationSpeed) {
+var Plane = function () {
     AbstractPlane.apply(this, arguments);
 };
 
