@@ -38,7 +38,7 @@ Game.prototype.init = function () {
         screenHeight: this.options.screenHeight
     });
 
-    tmp = new Plane(ctx, 'player 1', 26, 6, 26, 20000, 130000, 3, 5);
+    tmp = new Plane(ctx, 'player 1', 26, 6, 26, 2000, 13000, 3, 5);
     tmp.index = 0;
     this.planes[tmp.index] = $.extend(true, {}, tmp);
     this.playerId = tmp.index;
@@ -91,6 +91,7 @@ Game.prototype.gameProc = function () {
 
 Game.prototype.initPlayerControls = function () {
     var self = this;
+
     $(document).on('keydown', function (e) {
         if (-1 !== $.inArray(e.which, [87, 38])) {
             self.planes[self.playerId].accelerate();
@@ -106,9 +107,13 @@ Game.prototype.initPlayerControls = function () {
         }
     });
 
-    $(document).on('keyup', function (e) {
-        if (-1 !== $.inArray(e.which, [87, 38])) {
-            self.planes[self.playerId].stopEngine();
+    $(document).on('keypress', function (e) {
+        if (e.which == 116) {
+            if (self.planes[self.playerId].engineStarted) {
+                self.planes[self.playerId].stopEngine();
+            } else {
+                self.planes[self.playerId].startEngine();
+            }
         }
     });
 };

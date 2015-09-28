@@ -5,18 +5,23 @@ var AbstractPlane = function (ctx, name, width, height, length, weight, engineFo
     this.width = width;
     this.height = height;
     this.length = length;
-    this.s = this.width * this.height * this.length;
+    this.s = this.width * this.height * this.length / 10;
     this.weight = weight;
-    this.engineForce = engineForce;
-    this.acceleration = this.engineForce / this.weight;
+    this.maxEngineForce = engineForce;
+    this.maxAcceleration = engineForce / this.weight;
+    this.increaseForceStep = this.maxEngineForce / 50;
     this.rotationSpeed = rotationSpeed;
 
     this.aVector = {x: 0, y: 0};
     this.vVector = {x: 0, y: 0};
-
     this.gVector = 0;
+
     this.movementDirection = 0;
     this.fireDirection = 0;
+
+    this.engineForce = 0;
+    this.acceleration = this.engineForce / this.weight;
+
     this.weapon = [];
     this.x = Math.random() * 4000;
     this.y = Math.random() * 4000;
@@ -29,11 +34,13 @@ AbstractPlane.prototype.update = function (dt) {
     this.wasDrawn = false;
 
     this.movementDirection = (this.movementDirection + this.fireDirection) / 2;
-
-    if (this.engineStarted === false) {
-        this.aVector.x = -0.025 * this.vVector.x * this.vVector.x / this.weight;
-        this.aVector.y = -0.025 * this.vVector.y * this.vVector.y / this.weight;
+    if (this.acceleration > 0) {
+        this.aVector.x = Math.abs(this.acceleration * Math.cos(this.movementDirection));
+        this.aVector.y = Math.abs(this.acceleration * Math.sin(this.movementDirection));
     }
+
+    this.aVector.x += -1 * this.aVector.x.sign() * 0.025 * this.vVector.x * this.vVector.x / this.weight;
+    this.aVector.y += -1 * this.aVector.y.sign() * 0.025 * this.vVector.y * this.vVector.y / this.weight;
 
     this.vVector.x += this.aVector.x;
     this.vVector.y += this.aVector.y;
@@ -41,8 +48,11 @@ AbstractPlane.prototype.update = function (dt) {
     if (this.vVector.x < 0) {
         this.vVector.x = 0;
     }
+    if (this.vVector.y < 0) {
+        this.vVector.y = 0;
+    }
 
-    var g = 9.8 - Math.abs(0.22 * this.vVector.x * this.s * Math.cos(this.fireDirection)) / this.weight;
+    var g = 0.98 - Math.abs(0.22 * Math.sqrt(Math.pow(this.vVector.x, 2) + Math.pow(this.vVector.y + this.gVector, 2)) * this.s * Math.cos(this.fireDirection)) / this.weight;
 
     this.gVector += g + this.aVector.y * Math.sin(this.movementDirection);
 
@@ -78,16 +88,33 @@ AbstractPlane.prototype.rotate = function (deg) {
 };
 
 AbstractPlane.prototype.accelerate = function () {
-    this.engineStarted = true;
-    this.aVector.x = this.acceleration;
-    this.aVector.y = this.acceleration;
+    if (!this.engineStarted) {
+        return;
+    }
+    this.engineForce += this.increaseForceStep;
+    if (this.engineForce > this.maxEngineForce) {
+        this.engineForce = this.maxEngineForce;
+    }
+    this.acceleration = this.engineForce / this.weight;
 };
 
 AbstractPlane.prototype.stopEngine = function () {
     this.engineStarted = false;
+    this.engineForce = 0;
+    this.acceleration = 0;
+};
+
+AbstractPlane.prototype.startEngine = function () {
+    this.engineStarted = true;
 };
 
 AbstractPlane.prototype.slowDown = function () {
-    this.vVector.x /= 2;
-    this.vVector.y /= 2;
+    if (!this.engineStarted) {
+        return;
+    }
+    this.engineForce -= this.increaseForceStep;
+    if (this.engineForce < 0) {
+        this.engineForce = 0;
+    }
+    this.acceleration = this.engineForce / this.weight;
 };
