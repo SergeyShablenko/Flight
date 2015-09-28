@@ -12,8 +12,8 @@ var Map = function (ctx, options) {
 Map.prototype.DEFAULT_OPTIONS = {
     screenWidth: 1024,
     screenHeight: 768,
-    mapWidth: 5000,
-    mapHeight: 5000,
+    mapWidth: 10000,
+    mapHeight: 10000,
     gridSize: 100,
     translationSteps: 10
 };

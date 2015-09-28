@@ -1,26 +1,29 @@
-var AbstractPlane = function (ctx, name, width, height, length, weight, acceleration, rotationSpeed, slowingSpeed) {
+var AbstractPlane = function (ctx, name, width, height, length, weight, engineForce, rotationSpeed) {
     this.ctx = ctx;
     this.name = name;
     this.hp = 100;
     this.width = width;
     this.height = height;
     this.length = length;
+    this.s = this.width * this.height * this.length;
     this.weight = weight;
-    this.acceleration = acceleration;
+    this.engineForce = engineForce;
+    this.acceleration = this.engineForce / this.weight;
     this.rotationSpeed = rotationSpeed;
-    this.slowingSpeed = slowingSpeed;
 
-    this.aVector = 0;
-    this.vVector = 0;
+    this.aVector = {x: 0, y: 0};
+    this.vVector = {x: 0, y: 0};
+
     this.gVector = 0;
     this.gDirection = 1.57079633;
-    this.movementDirection = 0.5;
-    this.fireDirection = 0.5;
+    this.movementDirection = 0;
+    this.fireDirection = 0;
     this.weapon = [];
     this.x = Math.random() * 4000;
     this.y = Math.random() * 4000;
 
     this.wasDrawn = false;
+    this.engineStarted = false;
 };
 
 AbstractPlane.prototype.update = function (dt) {
@@ -28,19 +31,32 @@ AbstractPlane.prototype.update = function (dt) {
 
     this.movementDirection = (this.movementDirection + this.fireDirection) / 2;
 
-    this.aVector = (this.aVector * this.weight - 0.0025 * this.vVector * this.vVector) / this.weight;
-    if (this.aVector < 0) {
-        this.aVector = 0;
+    if (this.engineStarted === false) {
+        this.aVector.x = -0.025 * this.vVector.x * this.vVector.x / this.weight;
+        this.aVector.y = -0.025 * this.vVector.y * this.vVector.y / this.weight;
     }
 
-    this.vVector += this.aVector;
-    this.gVector += 0.98;
+    var p = Math.abs(0.22 * this.vVector.x * this.s * Math.cos(this.fireDirection)),
+        currentG = 9.8 - p;
 
-    var dx = this.vVector * dt * Math.cos(this.movementDirection),
-        dy = this.vVector * dt * Math.sin(this.movementDirection) + this.gVector * dt * Math.sin(this.gDirection);
+    if (currentG >= 0) {
+        this.gVector += currentG;
+    }
 
-    this.x += dx;
-    this.y += dy;
+    this.vVector.x += this.aVector.x;
+    this.vVector.y += this.aVector.y;
+
+    if (this.vVector.x < 0) {
+        this.vVector.x = 0;
+    }
+
+    this.x += this.vVector.x * dt * Math.cos(this.movementDirection);
+    this.y += this.vVector.y * dt * Math.sin(this.movementDirection) + this.gVector * dt;
+    
+    this.gVector += this.aVector.y * Math.sin(this.movementDirection);
+    if (this.gVector < 0) {
+        this.gVector = 0;
+    }
 };
 
 AbstractPlane.prototype.draw = function () {
@@ -67,11 +83,16 @@ AbstractPlane.prototype.rotate = function (deg) {
 };
 
 AbstractPlane.prototype.accelerate = function () {
-    this.aVector += this.acceleration;
+    this.engineStarted = true;
+    this.aVector.x = this.acceleration;
+    this.aVector.y = this.acceleration;
+};
+
+AbstractPlane.prototype.stopEngine = function () {
+    this.engineStarted = false;
 };
 
 AbstractPlane.prototype.slowDown = function () {
-    this.vVector /= 2;
-    this.movementDirection -= 3.14159265;
-    this.fireDirection -= 3.14159265;
+    this.vVector.x /= 2;
+    this.vVector.y /= 2;
 };

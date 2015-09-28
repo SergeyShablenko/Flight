@@ -38,22 +38,22 @@ Game.prototype.init = function () {
         screenHeight: this.options.screenHeight
     });
 
-    tmp = new Plane(ctx, 'player 1', 13, 6, 26, 2000, 5, 3, 5);
+    tmp = new Plane(ctx, 'player 1', 13, 6, 26, 20000, 130000, 3, 5);
     tmp.index = 0;
     this.planes[tmp.index] = $.extend(true, {}, tmp);
     this.playerId = tmp.index;
     delete(tmp);
 
     /** test **/
-
+/*
     for (var i=1; i<=20; i++) {
-        tmp = new Plane(ctx, 'player ' + i, 15, 15, 30, 1, 3, 5);
+        tmp = new Plane(ctx, 'player ' + i, 13, 6, 26, 20000, 130000, 3, 5);
         tmp.currentSpeed = Math.random() * 200;
         tmp.index = i;
         this.planes[tmp.index] = $.extend(true, {}, tmp);
         delete(tmp);
     }
-
+*/
     this.initPlayerControls();
 };
 
@@ -87,9 +87,6 @@ Game.prototype.gameProc = function () {
     $.each(this.planes, function () {
         this.update(dt);
     });
-
-    //console.log(this.planes[0].speedX);
-    //console.log(this.planes[0].speedY);
 };
 
 Game.prototype.initPlayerControls = function () {
@@ -106,6 +103,12 @@ Game.prototype.initPlayerControls = function () {
         }
         if (-1 !== $.inArray(e.which, [68, 39])) {
             self.planes[self.playerId].rotate(1);
+        }
+    });
+
+    $(document).on('keyup', function (e) {
+        if (-1 !== $.inArray(e.which, [87, 38])) {
+            self.planes[self.playerId].stopEngine();
         }
     });
 };
