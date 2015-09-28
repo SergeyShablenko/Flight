@@ -38,7 +38,7 @@ Game.prototype.init = function () {
         screenHeight: this.options.screenHeight
     });
 
-    tmp = new Plane(ctx, 'player 1', 13, 6, 26, 20000, 130000, 3, 5);
+    tmp = new Plane(ctx, 'player 1', 26, 6, 26, 20000, 130000, 3, 5);
     tmp.index = 0;
     this.planes[tmp.index] = $.extend(true, {}, tmp);
     this.playerId = tmp.index;

@@ -15,7 +15,6 @@ var AbstractPlane = function (ctx, name, width, height, length, weight, engineFo
     this.vVector = {x: 0, y: 0};
 
     this.gVector = 0;
-    this.gDirection = 1.57079633;
     this.movementDirection = 0;
     this.fireDirection = 0;
     this.weapon = [];
@@ -36,13 +35,6 @@ AbstractPlane.prototype.update = function (dt) {
         this.aVector.y = -0.025 * this.vVector.y * this.vVector.y / this.weight;
     }
 
-    var p = Math.abs(0.22 * this.vVector.x * this.s * Math.cos(this.fireDirection)),
-        currentG = 9.8 - p;
-
-    if (currentG >= 0) {
-        this.gVector += currentG;
-    }
-
     this.vVector.x += this.aVector.x;
     this.vVector.y += this.aVector.y;
 
@@ -50,13 +42,16 @@ AbstractPlane.prototype.update = function (dt) {
         this.vVector.x = 0;
     }
 
-    this.x += this.vVector.x * dt * Math.cos(this.movementDirection);
-    this.y += this.vVector.y * dt * Math.sin(this.movementDirection) + this.gVector * dt;
-    
-    this.gVector += this.aVector.y * Math.sin(this.movementDirection);
+    var g = 9.8 - Math.abs(0.22 * this.vVector.x * this.s * Math.cos(this.fireDirection)) / this.weight;
+
+    this.gVector += g + this.aVector.y * Math.sin(this.movementDirection);
+
     if (this.gVector < 0) {
         this.gVector = 0;
     }
+
+    this.x += this.vVector.x * dt * Math.cos(this.movementDirection);
+    this.y += this.vVector.y * dt * Math.sin(this.movementDirection) + this.gVector * dt;
 };
 
 AbstractPlane.prototype.draw = function () {
